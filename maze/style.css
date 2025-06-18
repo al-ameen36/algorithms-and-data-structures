@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  background-color: #f0f0f0;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: grid;
+  place-items: center;
+  place-content: center;
+  gap: 1rem;
+
+  height: 100vh;
+}
+
+#maze {
+  justify-content: start;
+  display: grid;
+  grid-auto-columns: 20px;
+  grid-auto-rows: 20px;
+  gap: 2px;
+}
+
+.tile {
+  width: 20px;
+  height: 20px;
+  background-color: #ccc;
+}
+.tile.path {
+  background-color: #4caf50;
+}
+.tile.wall {
+  background-color: #f44336;
+}
+.tile.goal {
+  background-color: gold;
+}
+.tile.start {
+  background-color: gold;
+}
+
+#action-buttons {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+#algo-buttons {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+#action-buttons button {
+  border: 2px solid #000;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#algo-buttons button {
+  background-color: #222;
+  color: #fff;
+}
