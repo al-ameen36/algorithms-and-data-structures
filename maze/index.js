@@ -13,11 +13,6 @@ const maze = new Maze([20, 10], mazeElement, {
 // initially Generate random maze
 maze.regenerate();
 
-regenerateBtn.addEventListener("click", () => {
-  maze.regenerate();
-  algos["dfs"].searching = false;
-});
-
 // Search Algos
 const depthFirstSearch = new DepthFirstSearch(maze);
 const depthFirstSearchRandom = new DepthFirstSearchRandom(maze);
@@ -26,12 +21,27 @@ const algos = {
   dfsr: depthFirstSearchRandom,
 };
 
+function stopAllAlgorithms() {
+  Object.values(algos).forEach((algo) => {
+    algo.resetMaze();
+    algo.resetHighlighting();
+    algo.isSearching = false;
+    algo.timeOuts.forEach((timeout) => clearTimeout(timeout));
+    algo.timeOuts = [];
+  });
+}
+
+regenerateBtn.addEventListener("click", () => {
+  stopAllAlgorithms();
+  maze.regenerate();
+});
+
 dfsBtn.addEventListener("click", () => {
-  algos["dfs"].resetHighlighting();
+  stopAllAlgorithms();
   algos["dfs"].findGoal();
 });
 
 dfsrBtn.addEventListener("click", () => {
-  algos["dfsr"].resetHighlighting();
+  stopAllAlgorithms();
   algos["dfsr"].findGoal();
 });

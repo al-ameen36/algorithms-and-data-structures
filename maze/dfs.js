@@ -2,16 +2,20 @@
 class DepthFirstSearch {
   constructor(maze) {
     this.maze = maze;
+    this.timeOuts = [];
     this.resetMaze();
-    this.isSearching = false;
   }
 
   resetMaze() {
     this.frontier = [];
     this.explored = [];
     this.start = 0;
-    this.timeOuts = [];
     this.isSearching = false;
+
+    this.timeOuts.forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+    this.timeOuts = [];
   }
 
   resetHighlighting() {
@@ -46,8 +50,8 @@ class DepthFirstSearch {
 
   findGoal() {
     this.resetMaze();
-    this.isSearching = true;
     this.resetHighlighting();
+    this.isSearching = true;
 
     const firstTile = this.maze.tiles[this.start];
     if (firstTile.type === "goal") return firstTile;
