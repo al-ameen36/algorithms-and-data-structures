@@ -51,7 +51,7 @@ body {
 }
 
 #algo-buttons {
-  display: grid;
+  display: flex;
   gap: 1rem;
   grid-template-columns: 1fr 1fr;
 }
