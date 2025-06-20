@@ -13,14 +13,31 @@
         <div id="algo-buttons">
           <button id="dfs-button">Depth first</button>
           <button id="dfsr-button">Depth first (Random)</button>
+          <button id="bfs-button">Breadth first</button>
         </div>
       </div>
       <div id="maze"></div>
     </div>
+    <!-- <aside id="sidebar">
+      <h2>Options</h2>
+      <div>
+        <div>
+          <label for="dimensions">Dimensions</label>
+          <div id="dimensions-container">
+            <input type="text" name="" id="x-dim" />
+            <span>x</span>
+            <input type="text" name="" id="y-dim" />
+          </div>
+        </div>
+        <button id="update-button">Update</button>
+      </div>
+    </aside> -->
 
+    <script src="utils.js"></script>
     <script src="maze.js"></script>
-    <script src="dfs.js"></script>
-    <script src="dfs-random.js"></script>
+    <script src="algos/dfs.js"></script>
+    <script src="algos/dfs-random.js"></script>
+    <script src="algos/bfs.js"></script>
     <script src="index.js"></script>
   </body>
 </html>

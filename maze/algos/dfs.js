@@ -1,34 +1,21 @@
-// Shuffle function
-const shuffle = (array) => {
-  const temp = [...array];
-  const newArray = [];
-  while (temp.length) {
-    const randomIndex = Math.floor(Math.random() * temp.length);
-    newArray.push(...temp.splice(randomIndex, 1));
-  }
-  return newArray;
-};
-
 // check top, right, bottom, left
-class DepthFirstSearchRandom {
+class DepthFirstSearch {
   constructor(maze) {
     this.maze = maze;
+    this.timeOuts = [];
     this.resetMaze();
-    this.isSearching = false;
   }
 
   resetMaze() {
     this.frontier = [];
     this.explored = [];
     this.start = 0;
-    this.timeOuts = [];
     this.isSearching = false;
-  }
 
-  resetHighlighting() {
-    document.querySelectorAll(".tile").forEach((item) => {
-      item.style.border = "";
+    this.timeOuts.forEach((timeout) => {
+      clearTimeout(timeout);
     });
+    this.timeOuts = [];
   }
 
   getNeighbors(tile) {
@@ -36,8 +23,8 @@ class DepthFirstSearchRandom {
     const neighbors = [
       [tile.x + 1, tile.y],
       [tile.x, tile.y + 1],
-      [tile.x - 1, tile.y],
       [tile.x, tile.y - 1],
+      [tile.x - 1, tile.y],
     ];
 
     neighbors.forEach((tileCoords) => {
@@ -47,18 +34,13 @@ class DepthFirstSearchRandom {
       }
     });
 
-    return shuffle(newArray);
-  }
-
-  highlightTile(x, y, color) {
-    const tileElement = document.getElementById(`${x}-${y}`);
-    if (tileElement) tileElement.style.border = "4px solid " + color;
+    return newArray;
   }
 
   findGoal() {
     this.resetMaze();
+    utils.resetHighlighting();
     this.isSearching = true;
-    this.resetHighlighting();
 
     const firstTile = this.maze.tiles[this.start];
     if (firstTile.type === "goal") return firstTile;
@@ -92,12 +74,12 @@ class DepthFirstSearchRandom {
       if (currentTile.type === "goal") {
         console.log(`Goal found at x: ${currentTile.x}, y: ${currentTile.y}`);
         console.log("Steps taken: " + this.explored.length);
-        this.highlightTile(currentTile.x, currentTile.y, "red");
+        utils.highlightTile(currentTile.x, currentTile.y, "red");
         return currentTile;
       }
       // Continue if current tile is not the goal
       else if (currentTile.type === "path") {
-        this.highlightTile(currentTile.x, currentTile.y, "purple");
+        utils.highlightTile(currentTile.x, currentTile.y, "purple");
 
         let neighbors = this.getNeighbors(currentTile);
         neighbors = neighbors.filter(

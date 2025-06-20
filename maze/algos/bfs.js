@@ -1,5 +1,5 @@
 // check top, right, bottom, left
-class DepthFirstSearch {
+class BreadthFirstSearch {
   constructor(maze) {
     this.maze = maze;
     this.timeOuts = [];
@@ -18,19 +18,13 @@ class DepthFirstSearch {
     this.timeOuts = [];
   }
 
-  resetHighlighting() {
-    document.querySelectorAll(".tile").forEach((item) => {
-      item.style.border = "";
-    });
-  }
-
   getNeighbors(tile) {
     let newArray = [];
     const neighbors = [
       [tile.x + 1, tile.y],
       [tile.x, tile.y + 1],
-      [tile.x - 1, tile.y],
       [tile.x, tile.y - 1],
+      [tile.x - 1, tile.y],
     ];
 
     neighbors.forEach((tileCoords) => {
@@ -43,14 +37,9 @@ class DepthFirstSearch {
     return newArray;
   }
 
-  highlightTile(x, y, color) {
-    const tileElement = document.getElementById(`${x}-${y}`);
-    if (tileElement) tileElement.style.border = "4px solid " + color;
-  }
-
   findGoal() {
     this.resetMaze();
-    this.resetHighlighting();
+    utils.resetHighlighting();
     this.isSearching = true;
 
     const firstTile = this.maze.tiles[this.start];
@@ -77,7 +66,7 @@ class DepthFirstSearch {
       return null;
     }
 
-    let currentTile = this.frontier.pop();
+    let currentTile = this.frontier.shift();
     if (!this.ifExists(currentTile)) {
       this.explored.push(currentTile);
 
@@ -85,12 +74,12 @@ class DepthFirstSearch {
       if (currentTile.type === "goal") {
         console.log(`Goal found at x: ${currentTile.x}, y: ${currentTile.y}`);
         console.log("Steps taken: " + this.explored.length);
-        this.highlightTile(currentTile.x, currentTile.y, "red");
+        utils.highlightTile(currentTile.x, currentTile.y, "red");
         return currentTile;
       }
       // Continue if current tile is not the goal
       else if (currentTile.type === "path") {
-        this.highlightTile(currentTile.x, currentTile.y, "purple");
+        utils.highlightTile(currentTile.x, currentTile.y, "purple");
 
         let neighbors = this.getNeighbors(currentTile);
         neighbors = neighbors.filter(

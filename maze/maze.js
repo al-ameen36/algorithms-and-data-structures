@@ -37,6 +37,10 @@ class Maze {
     }
   }
 
+  setDimensions(dimension) {
+    this.dimension = dimension;
+  }
+
   createTiles() {
     const tiles = [];
     const width = this.dimension[0];
@@ -61,6 +65,7 @@ class Maze {
 
     return tiles;
   }
+
   generatePaths(tiles, width, height) {
     const startTile = tiles[0];
 
