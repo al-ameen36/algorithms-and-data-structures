@@ -22,6 +22,35 @@ class Utils {
     }
     return newArray;
   }
+
+  stopAllAlgorithms() {
+    Object.values(algos).forEach((algo) => {
+      algo.resetMaze();
+      if (typeof utils !== "undefined") {
+        utils.resetHighlighting();
+      }
+      algo.isSearching = false;
+      if (algo.timeOuts) {
+        algo.timeOuts.forEach((timeout) => clearTimeout(timeout));
+        algo.timeOuts = [];
+      }
+    });
+  }
+
+  updateMazeDimensions() {
+    const newWidth = parseInt(xDim?.value) || 20;
+    const newHeight = parseInt(yDim?.value) || 10;
+
+    stopAllAlgorithms();
+    maze.setDimensions([newWidth, newHeight]);
+    maze.regenerate();
+  }
+
+  updateMazeType() {
+    const newType = mazeTypeSelector?.value || "field";
+    stopAllAlgorithms();
+    maze.setMazeType(newType);
+  }
 }
 
 const utils = new Utils();

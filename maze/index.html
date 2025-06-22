@@ -18,20 +18,66 @@
       </div>
       <div id="maze"></div>
     </div>
-    <!-- <aside id="sidebar">
+
+    <aside id="sidebar">
       <h2>Options</h2>
-      <div>
-        <div>
+      <div class="option-group">
+        <div class="option-item">
+          <label for="maze-type-selector">Maze Type</label>
+          <select id="maze-type-selector">
+            <option value="line">Line Maze</option>
+            <option value="field">Field Maze</option>
+          </select>
+        </div>
+
+        <div class="option-item">
           <label for="dimensions">Dimensions</label>
           <div id="dimensions-container">
-            <input type="text" name="" id="x-dim" />
+            <input type="number" id="x-dim" value="20" min="5" max="50" />
             <span>x</span>
-            <input type="text" name="" id="y-dim" />
+            <input type="number" id="y-dim" value="10" min="5" max="30" />
           </div>
         </div>
-        <button id="update-button">Update</button>
+
+        <div class="option-item">
+          <label for="wall-density">Wall Density</label>
+          <input
+            type="range"
+            id="wall-density"
+            min="0.1"
+            max="0.7"
+            step="0.1"
+            value="0.4"
+          />
+          <span id="wall-density-value">0.4</span>
+        </div>
+
+        <div class="option-item">
+          <label for="num-paths">Number of Paths</label>
+          <input
+            type="range"
+            id="num-paths"
+            min="1"
+            max="8"
+            step="1"
+            value="4"
+          />
+          <span id="num-paths-value">4</span>
+        </div>
+
+        <button id="update-button">Update Maze</button>
       </div>
-    </aside> -->
+
+      <div class="shortcuts">
+        <h3>Keyboard Shortcuts</h3>
+        <div class="shortcut-list">
+          <div><kbd>Ctrl</kbd> + <kbd>R</kbd> - Regenerate</div>
+          <div><kbd>Ctrl</kbd> + <kbd>1</kbd> - Depth First</div>
+          <div><kbd>Ctrl</kbd> + <kbd>2</kbd> - Depth First (Random)</div>
+          <div><kbd>Ctrl</kbd> + <kbd>3</kbd> - Breadth First</div>
+        </div>
+      </div>
+    </aside>
 
     <script src="utils.js"></script>
     <script src="maze.js"></script>
