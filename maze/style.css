@@ -2,7 +2,7 @@
   box-sizing: border-box;
 }
 body {
-  background-color: #f0f0f0;
+  background-color: #e5e5e5;
   height: 100vh;
   margin: 0;
   padding: 0;
@@ -28,19 +28,19 @@ body {
 .tile {
   width: 20px;
   height: 20px;
-  background-color: #ccc;
 }
 .tile.path {
-  background-color: #4caf50;
+  background-color: #fefefe;
 }
 .tile.wall {
-  background-color: #f44336;
+  /* background-color: #f44336; */
+  background-color: #222;
 }
 .tile.goal {
-  background-color: gold;
+  background-color: red;
 }
 .tile.start {
-  background-color: gold;
+  background-color: green;
 }
 
 #action-buttons {

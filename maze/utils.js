@@ -9,6 +9,9 @@ class Utils {
   resetHighlighting() {
     document.querySelectorAll(".tile").forEach((item) => {
       item.style.border = "";
+      if (item.classList.contains("start") || item.classList.contains("start"))
+        item.classList.remove("start", "goal");
+      item.classList.add("path");
     });
   }
 
@@ -41,14 +44,14 @@ class Utils {
     const newWidth = parseInt(xDim?.value) || 20;
     const newHeight = parseInt(yDim?.value) || 10;
 
-    stopAllAlgorithms();
+    this.stopAllAlgorithms();
     maze.setDimensions([newWidth, newHeight]);
     maze.regenerate();
   }
 
   updateMazeType() {
     const newType = mazeTypeSelector?.value || "field";
-    stopAllAlgorithms();
+    this.stopAllAlgorithms();
     maze.setMazeType(newType);
   }
 }

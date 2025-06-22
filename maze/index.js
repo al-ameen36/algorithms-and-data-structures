@@ -25,6 +25,55 @@ const maze = new Maze(
 // Initially generate random maze
 maze.regenerate();
 
+mazeElement?.addEventListener("click", (event) => {
+  const tile = event.target.closest("div");
+  if (!tile || tile.classList.contains("wall")) return;
+
+  const start = document.querySelector(".start");
+  const goal = document.querySelector(".goal");
+
+  // If no start selected yet
+  if (!start) {
+    tile.classList.add("start");
+    return;
+  }
+
+  // If clicked start tile, remove it
+  if (tile === start) {
+    tile.classList.remove("start");
+    return;
+  }
+
+  // Start exists, now set or reset goal
+  if (!goal) {
+    tile.classList.add("goal");
+    return;
+  }
+
+  // If clicked goal tile, remove it
+  if (tile === goal) {
+    tile.classList.remove("goal");
+    return;
+  }
+
+  // Both exist—reassign both
+  start.classList.remove("start");
+  goal.classList.remove("goal");
+  tile.classList.add("start");
+});
+
+regenerateBtn?.addEventListener("click", () => {
+  utils.stopAllAlgorithms();
+  maze.regenerate();
+});
+
+// Maze type selector (if element exists)
+mazeTypeSelector?.addEventListener("change", () => utils.updateMazeType());
+
+// Dimension inputs (add these listeners if you want real-time updates)
+xDim?.addEventListener("change", () => utils.updateMazeDimensions());
+yDim?.addEventListener("change", () => utils.updateMazeDimensions());
+
 // Search Algos
 const depthFirstSearch = new DepthFirstSearch(maze);
 const depthFirstSearchRandom = new DepthFirstSearchRandom(maze);
@@ -34,19 +83,6 @@ const algos = {
   dfsr: depthFirstSearchRandom,
   bfs: breadthFirstSearchRandom,
 };
-
-// Event Listeners
-regenerateBtn?.addEventListener("click", () => {
-  utils.stopAllAlgorithms();
-  maze.regenerate();
-});
-
-// Maze type selector (if element exists)
-mazeTypeSelector?.addEventListener("change", utils.updateMazeType);
-
-// Dimension inputs (add these listeners if you want real-time updates)
-xDim?.addEventListener("change", utils.updateMazeDimensions);
-yDim?.addEventListener("change", utils.updateMazeDimensions);
 
 // Search algorithm buttons
 dfsBtn?.addEventListener("click", () => {

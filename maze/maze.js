@@ -64,10 +64,10 @@ class Maze {
     }
 
     // Set start and goal positions
-    const startIndex = 0;
-    const goalIndex = tiles.length - 1;
-    tiles[startIndex].type = "start";
-    tiles[goalIndex].type = "goal";
+    // const startIndex = 0;
+    // const goalIndex = tiles.length - 1;
+    // tiles[startIndex].type = "start";
+    // tiles[goalIndex].type = "goal";
 
     // Generate paths
     this.generatePaths(tiles, width, height);
