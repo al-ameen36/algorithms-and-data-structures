@@ -9,7 +9,7 @@ class DepthFirstSearch {
   resetMaze() {
     this.frontier = [];
     this.explored = [];
-    this.start = 0;
+    this.start = this.maze.getStartIndex();
     this.isSearching = false;
 
     this.timeOuts.forEach((timeout) => {

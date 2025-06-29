@@ -38,6 +38,23 @@ class Maze {
     }
   }
 
+  getStartIndex() {
+    let number = 0;
+    const start = document.querySelector(".start");
+
+    if (start) {
+      const id = start.id.split("-");
+      number = (+id[0] + 1) * (+id[1] + 1);
+      console.log(number);
+    }
+
+    return number;
+  }
+
+  getGoal() {
+    return document.querySelector(".goal");
+  }
+
   setDimensions(dimension) {
     this.dimension = dimension;
   }
@@ -62,12 +79,6 @@ class Maze {
         tiles.push(new Tile(x, y, type));
       }
     }
-
-    // Set start and goal positions
-    // const startIndex = 0;
-    // const goalIndex = tiles.length - 1;
-    // tiles[startIndex].type = "start";
-    // tiles[goalIndex].type = "goal";
 
     // Generate paths
     this.generatePaths(tiles, width, height);

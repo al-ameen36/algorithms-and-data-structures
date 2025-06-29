@@ -9,8 +9,8 @@ class Utils {
   resetHighlighting() {
     document.querySelectorAll(".tile").forEach((item) => {
       item.style.border = "";
-      if (item.classList.contains("start") || item.classList.contains("start"))
-        item.classList.remove("start", "goal");
+      // if (item.classList.contains("start") || item.classList.contains("start"))
+      //   item.classList.remove("start", "goal");
       item.classList.add("path");
     });
   }
