@@ -1,403 +1,345 @@
 class Tile {
-  constructor(x, y, type) {
+  constructor(x, y, type = "wall") {
     this.x = x;
     this.y = y;
-    this.type = type; // "path", "wall", "start", "goal"
+    this.type = type; // 'wall', 'path', 'start', 'goal'
   }
 
   isWalkable() {
-    return (
-      this.type === "path" || this.type === "start" || this.type === "goal"
-    );
+    return ["path", "start", "goal"].includes(this.type);
   }
 
   toString() {
-    return `Tile(${this.x}, ${this.y}, ${this.type})`;
+    return `${this.type}(${this.x},${this.y})`;
   }
 }
 
-class Maze {
-  constructor(dimension, mazeEl, options = {}) {
-    this.dimension = dimension; // [width, height]
-    this.mazeEl = mazeEl;
-
-    // Configuration options
+export class Maze {
+  constructor(width, height, options = {}) {
+    this.width = width;
+    this.height = height;
     this.options = {
-      wallDensity: 0.3, // Base wall probability (for field-based mazes)
-      numPaths: 3, // Number of branching paths to create
-      pathToGoalChance: 0.6, // 60% chance goal will be reachable
-      mazeType: "field", // "field" or "line" - determines maze generation style
+      type: "field", // 'field' or 'line'
+      wallDensity: 0.3, // For field mazes (0-1)
       ...options,
     };
 
-    this.tiles = this.createTiles();
+    this.tiles = [];
+    this.start = null;
+    this.goal = null;
+    this.displayFn = null;
 
-    if (!this.mazeEl) {
-      console.error("Maze element not found");
-      return;
-    }
+    this.generate();
   }
 
-  getStartIndex() {
-    let number = 0;
-    const start = document.querySelector(".start");
-
-    if (start) {
-      const id = start.id.split("-");
-      number = (+id[0] + 1) * (+id[1] + 1);
-      console.log(number);
-    }
-
-    return number;
+  // Core maze generation
+  generate() {
+    this.tiles =
+      this.options.type === "line"
+        ? this._generateLineMaze()
+        : this._generateFieldMaze();
   }
 
-  getGoal() {
-    return document.querySelector(".goal");
-  }
-
-  setDimensions(dimension) {
-    this.dimension = dimension;
-  }
-
-  createTiles() {
-    if (this.options.mazeType === "line") {
-      return this.createLineMaze();
-    } else {
-      return this.createFieldMaze();
-    }
-  }
-
-  createFieldMaze() {
+  _generateFieldMaze() {
     const tiles = [];
-    const width = this.dimension[0];
-    const height = this.dimension[1];
 
-    // First, create random maze
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
+    // Create random field with walls and paths
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
         const type = Math.random() < this.options.wallDensity ? "wall" : "path";
         tiles.push(new Tile(x, y, type));
       }
     }
 
-    // Generate paths
-    this.generatePaths(tiles, width, height);
+    // Ensure some connectivity by creating a few guaranteed paths
+    this._addConnectivityPaths(tiles);
 
     return tiles;
   }
 
-  createLineMaze() {
-    const width = this.dimension[0];
-    const height = this.dimension[1];
-
-    // For line mazes, we need odd dimensions to have proper walls and passages
-    // If even dimensions are provided, we'll work with them but the maze might look different
+  _generateLineMaze() {
     const tiles = [];
 
     // Initialize all as walls
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
         tiles.push(new Tile(x, y, "wall"));
       }
     }
 
-    // Generate maze using recursive backtracking algorithm
-    this.generateLineMazeRecursive(tiles, width, height);
-
-    // Set start and goal
-    const startTile = tiles.find((t) => t.x === 1 && t.y === 1) || tiles[0];
-    startTile.type = "start";
-
-    // Find a good goal position (preferably far from start)
-    let goalTile = null;
-    const pathTiles = tiles.filter((t) => t.type === "path");
-    if (pathTiles.length > 0) {
-      // Try to find the tile farthest from start
-      let maxDistance = 0;
-      pathTiles.forEach((tile) => {
-        const distance =
-          Math.abs(tile.x - startTile.x) + Math.abs(tile.y - startTile.y);
-        if (distance > maxDistance) {
-          maxDistance = distance;
-          goalTile = tile;
-        }
-      });
-    }
-
-    if (!goalTile) {
-      goalTile = tiles[tiles.length - 1];
-    }
-    goalTile.type = "goal";
+    // Use recursive backtracking to create maze
+    this._recursiveBacktrack(tiles);
 
     return tiles;
   }
 
-  generateLineMazeRecursive(tiles, width, height) {
-    const getIndex = (x, y) => y * width + x;
-    const isValid = (x, y) => x >= 0 && x < width && y >= 0 && y < height;
+  _addConnectivityPaths(tiles) {
+    const numPaths = Math.max(
+      2,
+      Math.floor(Math.min(this.width, this.height) / 3)
+    );
 
-    // Start from position (1,1) if possible, otherwise (0,0)
-    const startX = width > 1 ? 1 : 0;
-    const startY = height > 1 ? 1 : 0;
+    for (let i = 0; i < numPaths; i++) {
+      let x = Math.floor(Math.random() * this.width);
+      let y = Math.floor(Math.random() * this.height);
+      const length = 3 + Math.floor(Math.random() * 8);
+      const direction = this._randomDirection();
 
-    if (isValid(startX, startY)) {
-      tiles[getIndex(startX, startY)].type = "path";
+      for (let step = 0; step < length; step++) {
+        if (this._isInBounds(x, y)) {
+          this._getTile(x, y, tiles).type = "path";
+        }
+        x += direction.dx;
+        y += direction.dy;
+
+        // Occasionally change direction
+        if (Math.random() < 0.3) {
+          const newDir = this._randomDirection();
+          direction.dx = newDir.dx;
+          direction.dy = newDir.dy;
+        }
+      }
     }
+  }
+
+  _recursiveBacktrack(tiles) {
+    const startX = 1;
+    const startY = 1;
+
+    if (!this._isInBounds(startX, startY)) return;
+
+    this._getTile(startX, startY, tiles).type = "path";
 
     const stack = [{ x: startX, y: startY }];
-    const visited = new Set();
-    visited.add(`${startX},${startY}`);
-
-    // Directions: up, right, down, left
-    const directions = [
-      { dx: 0, dy: -2 },
-      { dx: 2, dy: 0 },
-      { dx: 0, dy: 2 },
-      { dx: -2, dy: 0 },
-    ];
+    const visited = new Set([`${startX},${startY}`]);
 
     while (stack.length > 0) {
       const current = stack[stack.length - 1];
-
-      // Get unvisited neighbors
-      const neighbors = [];
-      directions.forEach((dir) => {
-        const nx = current.x + dir.dx;
-        const ny = current.y + dir.dy;
-        const key = `${nx},${ny}`;
-
-        if (isValid(nx, ny) && !visited.has(key)) {
-          neighbors.push({ x: nx, y: ny, dx: dir.dx, dy: dir.dy });
-        }
-      });
+      const neighbors = this._getUnvisitedNeighbors(current, visited, 2);
 
       if (neighbors.length > 0) {
-        // Choose random neighbor
         const next = neighbors[Math.floor(Math.random() * neighbors.length)];
-
-        // Mark as visited
         visited.add(`${next.x},${next.y}`);
 
-        // Create path to neighbor
-        if (isValid(next.x, next.y)) {
-          tiles[getIndex(next.x, next.y)].type = "path";
-        }
+        // Create path to neighbor and remove wall between
+        this._getTile(next.x, next.y, tiles).type = "path";
+        const betweenX = current.x + (next.x - current.x) / 2;
+        const betweenY = current.y + (next.y - current.y) / 2;
+        this._getTile(betweenX, betweenY, tiles).type = "path";
 
-        // Create path in between (remove wall)
-        const betweenX = current.x + next.dx / 2;
-        const betweenY = current.y + next.dy / 2;
-        if (isValid(betweenX, betweenY)) {
-          tiles[getIndex(betweenX, betweenY)].type = "path";
-        }
-
-        stack.push({ x: next.x, y: next.y });
+        stack.push(next);
       } else {
-        // Backtrack
         stack.pop();
       }
     }
-
-    // Add some random openings to make it less perfect
-    if (Math.random() < 0.3) {
-      this.addRandomOpenings(tiles, width, height);
-    }
   }
 
-  addRandomOpenings(tiles, width, height) {
-    const getIndex = (x, y) => y * width + x;
-    const numOpenings = 1 + Math.floor(Math.random() * 3);
+  // Start and Goal management
+  setStart(x, y) {
+    if (!this._isValidPosition(x, y)) return false;
 
-    for (let i = 0; i < numOpenings; i++) {
-      const x = Math.floor(Math.random() * width);
-      const y = Math.floor(Math.random() * height);
-
-      if (tiles[getIndex(x, y)].type === "wall") {
-        // Only create opening if it connects two path areas
-        const neighbors = [
-          { x: x - 1, y: y },
-          { x: x + 1, y: y },
-          { x: x, y: y - 1 },
-          { x: x, y: y + 1 },
-        ];
-
-        const pathNeighbors = neighbors.filter((n) => {
-          if (n.x >= 0 && n.x < width && n.y >= 0 && n.y < height) {
-            const tile = tiles[getIndex(n.x, n.y)];
-            return (
-              tile.type === "path" ||
-              tile.type === "start" ||
-              tile.type === "goal"
-            );
-          }
-          return false;
-        });
-
-        if (pathNeighbors.length >= 2) {
-          tiles[getIndex(x, y)].type = "path";
-        }
-      }
-    }
+    if (this.start) this._getTile(this.start.x, this.start.y).type = "path";
+    this.start = { x, y };
+    this._getTile(x, y).type = "start";
+    this._updateDisplay();
+    return true;
   }
 
-  generatePaths(tiles, width, height) {
-    const startTile = tiles[0];
+  setGoal(x, y) {
+    if (!this._isValidPosition(x, y)) return false;
 
-    // Create branching paths from the start
-    this.createBranchingPaths(
-      tiles,
-      startTile,
-      width,
-      height,
-      this.options.numPaths
+    if (this.goal) this._getTile(this.goal.x, this.goal.y).type = "path";
+    this.goal = { x, y };
+    this._getTile(x, y).type = "goal";
+    this._updateDisplay();
+    return true;
+  }
+
+  randomizeStartGoal() {
+    const walkableTiles = this.tiles.filter(
+      (t) => t.isWalkable() || t.type === "wall"
     );
 
-    // Add random path clusters to make the maze more organic
-    this.addRandomPathClusters(tiles, width, height);
+    if (walkableTiles.length < 2) {
+      console.warn("Not enough walkable tiles for start and goal");
+      return false;
+    }
+
+    // Clear existing start/goal
+    if (this.start) this._getTile(this.start.x, this.start.y).type = "path";
+    if (this.goal) this._getTile(this.goal.x, this.goal.y).type = "path";
+
+    // Pick random positions, ensuring they're far apart
+    let attempts = 0;
+    let startTile, goalTile;
+
+    do {
+      startTile =
+        walkableTiles[Math.floor(Math.random() * walkableTiles.length)];
+      goalTile =
+        walkableTiles[Math.floor(Math.random() * walkableTiles.length)];
+      attempts++;
+    } while (
+      attempts < 50 &&
+      (startTile === goalTile ||
+        this._manhattanDistance(startTile, goalTile) < 3)
+    );
+
+    this.start = { x: startTile.x, y: startTile.y };
+    this.goal = { x: goalTile.x, y: goalTile.y };
+
+    startTile.type = "start";
+    goalTile.type = "goal";
+
+    console.log(startTile);
+    console.log(goalTile);
+
+    this._updateDisplay();
+    return true;
   }
 
-  createBranchingPaths(tiles, startTile, width, height, numBranches) {
-    const getIndex = (x, y) => y * width + x;
+  clearStartGoal() {
+    if (this.start) {
+      this._getTile(this.start.x, this.start.y).type = "path";
+      this.start = null;
+    }
+    if (this.goal) {
+      this._getTile(this.goal.x, this.goal.y).type = "path";
+      this.goal = null;
+    }
+    this._updateDisplay();
+  }
+
+  // Search algorithm interface
+  getNeighbors(x, y) {
+    const neighbors = [];
     const directions = [
-      { dx: 0, dy: 1 }, // down
-      { dx: 1, dy: 0 }, // right
-      { dx: 0, dy: -1 }, // up
-      { dx: -1, dy: 0 }, // left
+      { dx: 0, dy: 1 },
+      { dx: 1, dy: 0 },
+      { dx: 0, dy: -1 },
+      { dx: -1, dy: 0 },
     ];
 
-    for (let branch = 0; branch < numBranches; branch++) {
-      let currentX = startTile.x;
-      let currentY = startTile.y;
+    for (const dir of directions) {
+      const nx = x + dir.dx;
+      const ny = y + dir.dy;
 
-      // Pick a random direction for this branch
-      let direction = directions[Math.floor(Math.random() * directions.length)];
-
-      // Create a path of random length
-      const pathLength =
-        3 + Math.floor((Math.random() * Math.min(width, height)) / 2);
-
-      for (let step = 0; step < pathLength; step++) {
-        currentX += direction.dx;
-        currentY += direction.dy;
-
-        // Stop if we hit boundaries
-        if (
-          currentX < 0 ||
-          currentX >= width ||
-          currentY < 0 ||
-          currentY >= height
-        ) {
-          break;
-        }
-
-        // Create path tile - but don't overwrite start or goal
-        const index = getIndex(currentX, currentY);
-        if (tiles[index].type !== "goal" && tiles[index].type !== "start") {
-          tiles[index].type = "path";
-        }
-
-        // Occasionally change direction (creates more interesting paths)
-        if (Math.random() < 0.3) {
-          direction = directions[Math.floor(Math.random() * directions.length)];
-        }
-
-        // Occasionally branch off
-        if (Math.random() < 0.2 && step > 2) {
-          const branchDir =
-            directions[Math.floor(Math.random() * directions.length)];
-          this.createShortPath(
-            tiles,
-            currentX,
-            currentY,
-            branchDir,
-            width,
-            height,
-            2 + Math.floor(Math.random() * 4)
-          );
+      if (this._isInBounds(nx, ny)) {
+        const tile = this._getTile(nx, ny);
+        if (tile.isWalkable()) {
+          neighbors.push(tile);
         }
       }
     }
+
+    return neighbors;
   }
 
-  createShortPath(tiles, startX, startY, direction, width, height, length) {
-    const getIndex = (x, y) => y * width + x;
-    let x = startX;
-    let y = startY;
-
-    for (let i = 0; i < length; i++) {
-      x += direction.dx;
-      y += direction.dy;
-
-      if (x < 0 || x >= width || y < 0 || y >= height) break;
-
-      const index = getIndex(x, y);
-      // Don't overwrite start or goal tiles
-      if (tiles[index].type !== "goal" && tiles[index].type !== "start") {
-        tiles[index].type = "path";
-      }
-    }
-  }
-
-  addRandomPathClusters(tiles, width, height) {
-    const getIndex = (x, y) => y * width + x;
-    const numClusters = 2 + Math.floor(Math.random() * 3);
-
-    for (let cluster = 0; cluster < numClusters; cluster++) {
-      const centerX = Math.floor(Math.random() * width);
-      const centerY = Math.floor(Math.random() * height);
-      const clusterSize = 2 + Math.floor(Math.random() * 3);
-
-      for (let dx = -clusterSize; dx <= clusterSize; dx++) {
-        for (let dy = -clusterSize; dy <= clusterSize; dy++) {
-          const x = centerX + dx;
-          const y = centerY + dy;
-
-          if (x >= 0 && x < width && y >= 0 && y < height) {
-            if (Math.random() < 0.7) {
-              // 70% chance for each tile in cluster
-              const index = getIndex(x, y);
-              // Only convert walls, preserve start and goal
-              if (tiles[index].type === "wall") {
-                tiles[index].type = "path";
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  drawTiles() {
-    console.log("Drawing tiles...");
-
-    if (!this.mazeEl) return console.error("Maze element not found");
-    this.mazeEl.innerHTML = ""; // Clear previous tiles
-
-    this.tiles.forEach((tile) => {
-      const html = `<div class="tile ${tile.type}" id="${tile.x}-${tile.y}"></div>`;
-      this.mazeEl.insertAdjacentHTML("beforeend", html);
-    });
-
-    this.mazeEl.style.gridTemplateColumns = `repeat(${this.dimension[0]}, 20px)`;
-    this.mazeEl.style.gridTemplateRows = `repeat(${this.dimension[1]}, 20px)`;
+  isWalkable(x, y) {
+    return this._isInBounds(x, y) && this._getTile(x, y).isWalkable();
   }
 
   getTile(x, y) {
-    return this.tiles.find((tile) => tile.x === x && tile.y === y);
+    return this._getTile(x, y);
   }
 
-  getTiles() {
-    return this.tiles;
+  // Display management
+  setDisplayFunction(displayFn) {
+    this.displayFn = displayFn;
+    this._updateDisplay();
   }
 
-  // Method to regenerate the maze with new random paths
+  _updateDisplay() {
+    if (this.displayFn) {
+      this.displayFn(this.tiles, this.width, this.height);
+    }
+  }
+
+  // Utility methods
+  _getTile(x, y, tiles = this.tiles) {
+    return tiles.find((t) => t.x === x && t.y === y);
+  }
+
+  _isInBounds(x, y) {
+    return x >= 0 && x < this.width && y >= 0 && y < this.height;
+  }
+
+  _isValidPosition(x, y) {
+    return this._isInBounds(x, y) && this._getTile(x, y).isWalkable();
+  }
+
+  _getUnvisitedNeighbors(pos, visited, step = 1) {
+    const neighbors = [];
+    const directions = [
+      { dx: 0, dy: step },
+      { dx: step, dy: 0 },
+      { dx: 0, dy: -step },
+      { dx: -step, dy: 0 },
+    ];
+
+    for (const dir of directions) {
+      const nx = pos.x + dir.dx;
+      const ny = pos.y + dir.dy;
+
+      if (this._isInBounds(nx, ny) && !visited.has(`${nx},${ny}`)) {
+        neighbors.push({ x: nx, y: ny });
+      }
+    }
+
+    return neighbors;
+  }
+
+  _randomDirection() {
+    const directions = [
+      { dx: 0, dy: 1 },
+      { dx: 1, dy: 0 },
+      { dx: 0, dy: -1 },
+      { dx: -1, dy: 0 },
+    ];
+    return directions[Math.floor(Math.random() * directions.length)];
+  }
+
+  _manhattanDistance(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  }
+
+  // Public interface
   regenerate() {
-    this.tiles = this.createTiles();
-    this.drawTiles();
+    this.generate();
+    this._updateDisplay();
   }
 
-  // Method to switch maze type
   setMazeType(type) {
-    this.options.mazeType = type;
+    this.options.type = type;
     this.regenerate();
+  }
+
+  getDimensions() {
+    return { width: this.width, height: this.height };
+  }
+
+  getStart() {
+    return this.start;
+  }
+
+  getGoal() {
+    return this.goal;
+  }
+
+  getAllTiles() {
+    return [...this.tiles];
+  }
+
+  highlightTile(x, y, color) {
+    const tileElement = document.getElementById(`${x}-${y}`);
+    if (tileElement) tileElement.style.border = "4px solid " + color;
+  }
+
+  // reset all highligting
+  resetHighlighting() {
+    document.querySelectorAll(".tile").forEach((item) => {
+      item.style.border = "";
+      item.classList.add("path");
+    });
   }
 }

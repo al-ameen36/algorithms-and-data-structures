@@ -9,7 +9,7 @@ class BreadthFirstSearch {
   resetMaze() {
     this.frontier = [];
     this.explored = [];
-    this.start = 0;
+    [this.start, this.goal] = [0, 3];
     this.isSearching = false;
 
     this.timeOuts.forEach((timeout) => {
@@ -39,6 +39,7 @@ class BreadthFirstSearch {
 
   findGoal() {
     this.resetMaze();
+    this.start = this.maze.getDimensions();
     utils.resetHighlighting();
     this.isSearching = true;
 
