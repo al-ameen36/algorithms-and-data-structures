@@ -1,3 +1,5 @@
+import { displayResult } from "../utils.js";
+
 export class DepthFirstSearch {
   #maze;
   #randomize;
@@ -37,6 +39,8 @@ export class DepthFirstSearch {
     this.#isSearching = true;
     const startTile = this.#maze.getStart();
 
+    this.#maze.highlightTile(startTile.x, startTile.y, "green");
+
     // Add new paths to the queue
     this.frontier.push(...this.#maze.getNeighbors(startTile.x, startTile.y));
     this.explored.push(startTile); // Assuming the start tile is never the goal
@@ -58,13 +62,11 @@ export class DepthFirstSearch {
     if (!this.isAlreadyExplored(currentTile)) {
       // Skip is already explored
       this.explored.push(currentTile); // Keep track of explored tiles
-      this.#maze.highlightTile(currentTile.x, currentTile.y, "purple");
 
       // Stop searching if current tile is the goal
       if (currentTile.type === "goal") {
-        console.log(`Goal found at x: ${currentTile.x}, y: ${currentTile.y}`);
-        console.log("Steps taken: " + this.explored.length);
-        this.#maze.highlightTile(currentTile.x, currentTile.y, "green");
+        this.#maze.highlightTile(currentTile.x, currentTile.y, "red");
+        displayResult(this.explored.length, currentTile);
 
         this.reset();
         return currentTile;
@@ -72,6 +74,8 @@ export class DepthFirstSearch {
 
       // Continue if current tile is not the goal
       else if (currentTile.type === "path") {
+        this.#maze.highlightTile(currentTile.x, currentTile.y, "purple");
+
         let neighbors = this.#maze.getNeighbors(
           currentTile.x,
           currentTile.y,

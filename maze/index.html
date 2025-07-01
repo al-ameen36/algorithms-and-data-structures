@@ -7,14 +7,27 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="shortcuts-bar">
+      <div>
+        <span>DFS</span>
+        <span>CTRL + 1</span>
+      </div>
+      <div>
+        <span>DFS (Random Direction)</span>
+        <span>CTRL + 2</span>
+      </div>
+      <div>
+        <span>BFS</span>
+        <span>CTRL + 3</span>
+      </div>
+    </div>
     <div class="container">
       <div id="action-buttons">
-        <button id="regenerate-button">Regenerate</button>
-        <div id="algo-buttons">
-          <button id="dfs-button">Depth first</button>
-          <button id="dfsr-button">Depth first (Random)</button>
-          <button id="bfs-button">Breadth first</button>
+        <div id="result">
+          <p>Goal found at x: -, y: -</p>
+          <p>Steps taken: -</p>
         </div>
+        <button id="regenerate-button">Regenerate</button>
       </div>
       <div id="maze"></div>
     </div>

@@ -345,16 +345,26 @@ export class Maze {
     return [...this.tiles];
   }
 
-  highlightTile(x, y, color) {
+  highlightTile(x, y, color, colorType = "background") {
     const tileElement = document.getElementById(`${x}-${y}`);
-    if (tileElement) tileElement.style.border = "4px solid " + color;
+    if (tileElement) {
+      if (colorType === "background") tileElement.style.backgroundColor = color;
+      else if (colorType === "border")
+        tileElement.style.border = "4px solid " + color;
+    }
   }
 
-  // reset all highligting
+  // reset all highlighting
   resetHighlighting() {
-    document.querySelectorAll(".tile").forEach((item) => {
+    document.querySelectorAll(".path").forEach((item) => {
       item.style.border = "";
-      item.classList.add("path");
+      item.style.backgroundColor = "";
     });
+
+    const start = document.querySelector(".start");
+    const goal = document.querySelector(".goal");
+
+    if (start) start.style.backgroundColor = "";
+    if (goal) goal.style.backgroundColor = "";
   }
 }

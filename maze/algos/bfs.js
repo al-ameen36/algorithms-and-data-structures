@@ -1,92 +1,89 @@
-// check top, right, bottom, left
-class BreadthFirstSearch {
-  constructor(maze) {
-    this.maze = maze;
-    this.timeOuts = [];
-    this.resetMaze();
+import { displayResult } from "../utils.js";
+
+export class BreadthFirstSearch {
+  #maze;
+  #randomize;
+  #isSearching;
+
+  constructor(maze, randomize = false) {
+    this.#maze = maze;
+    this.#randomize = randomize;
+
+    this.reset();
   }
 
-  resetMaze() {
+  stop() {
+    this.reset();
+    this.#maze.resetHighlighting();
+  }
+
+  reset() {
+    this.#isSearching = false;
     this.frontier = [];
     this.explored = [];
-    [this.start, this.goal] = [0, 3];
-    this.isSearching = false;
 
-    this.timeOuts.forEach((timeout) => {
-      clearTimeout(timeout);
-    });
+    if (this.timeOuts)
+      this.timeOuts.forEach((timeout) => {
+        clearTimeout(timeout);
+      });
     this.timeOuts = [];
   }
 
-  getNeighbors(tile) {
-    let newArray = [];
-    const neighbors = [
-      [tile.x + 1, tile.y],
-      [tile.x, tile.y + 1],
-      [tile.x, tile.y - 1],
-      [tile.x - 1, tile.y],
-    ];
-
-    neighbors.forEach((tileCoords) => {
-      const item = this.maze.getTile(...tileCoords);
-      if (item) {
-        newArray.push(item);
-      }
-    });
-
-    return newArray;
-  }
-
-  findGoal() {
-    this.resetMaze();
-    this.start = this.maze.getDimensions();
-    utils.resetHighlighting();
-    this.isSearching = true;
-
-    const firstTile = this.maze.tiles[this.start];
-    if (firstTile.type === "goal") return firstTile;
-
-    // Add new paths to the queue
-    this.frontier.push(...this.getNeighbors(firstTile));
-
-    // Take next steps
-    this.step();
-  }
-
-  ifExists(tile) {
+  isAlreadyExplored(tile) {
     return Boolean(
       this.explored.find((item) => item.x === tile.x && item.y === tile.y)
     );
   }
 
+  find() {
+    this.#isSearching = true;
+    const startTile = this.#maze.getStart();
+
+    this.#maze.highlightTile(startTile.x, startTile.y, "green");
+
+    // Add new paths to the queue
+    this.frontier.push(...this.#maze.getNeighbors(startTile.x, startTile.y));
+    this.explored.push(startTile); // Assuming the start tile is never the goal
+
+    this.step();
+  }
+
   step() {
-    if (!this.isSearching) return;
+    if (!this.#isSearching) return; // Search is stopped
     if (!this.frontier.length) {
+      // No goal found after search
       console.log("No more tiles and goal not found");
       console.log("Steps taken: " + this.explored.length);
+      this.reset();
       return null;
     }
 
     let currentTile = this.frontier.shift();
-    if (!this.ifExists(currentTile)) {
-      this.explored.push(currentTile);
+    if (!this.isAlreadyExplored(currentTile)) {
+      // Skip is already explored
+      this.explored.push(currentTile); // Keep track of explored tiles
 
       // Stop searching if current tile is the goal
       if (currentTile.type === "goal") {
-        console.log(`Goal found at x: ${currentTile.x}, y: ${currentTile.y}`);
-        console.log("Steps taken: " + this.explored.length);
-        utils.highlightTile(currentTile.x, currentTile.y, "red");
+        this.#maze.highlightTile(currentTile.x, currentTile.y, "red");
+        displayResult(this.explored.length, currentTile);
+
+        this.reset();
         return currentTile;
       }
+
       // Continue if current tile is not the goal
       else if (currentTile.type === "path") {
-        utils.highlightTile(currentTile.x, currentTile.y, "purple");
-
-        let neighbors = this.getNeighbors(currentTile);
-        neighbors = neighbors.filter(
-          (item) => !this.ifExists(item) && item.isWalkable()
+        this.#maze.highlightTile(currentTile.x, currentTile.y, "purple");
+        let neighbors = this.#maze.getNeighbors(
+          currentTile.x,
+          currentTile.y,
+          this.#randomize
         );
-        neighbors.forEach((item) => this.frontier.push(item));
+        neighbors = neighbors.filter(
+          (item) => !this.isAlreadyExplored(item) && item.isWalkable()
+        );
+        this.frontier.push(...neighbors);
       }
       // Move to next step
       this.timeOuts.push(setTimeout(() => this.step(), 100));

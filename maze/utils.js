@@ -19,3 +19,15 @@ export function htmlDisplayFunction(tiles, width, height) {
     mazeEl.appendChild(div);
   });
 }
+
+export function displayResult(steps, goalTile) {
+  const resultEl = document.getElementById("result");
+  if (resultEl)
+    resultEl.innerHTML = `<p>Goal found at x: ${goalTile.x}, y: ${goalTile.y}</p><p>Steps taken: ${steps}</p>`;
+}
+
+export function clearResult() {
+  const resultEl = document.getElementById("result");
+  if (resultEl)
+    resultEl.innerHTML = `<p>Goal found at x: -, y: -</p><p>Steps taken: -</p>`;
+}
