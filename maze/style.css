@@ -59,15 +59,8 @@ button {
 #maze {
   justify-content: start;
   display: grid;
-  grid-auto-columns: 20px;
-  grid-auto-rows: 20px;
-  gap: 2px;
 }
 
-.tile {
-  width: 20px;
-  height: 20px;
-}
 .tile.path {
   background-color: #fefefe;
 }

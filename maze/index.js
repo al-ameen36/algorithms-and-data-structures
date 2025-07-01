@@ -4,7 +4,11 @@ import { Maze } from "./maze.js";
 import { clearResult, htmlDisplayFunction } from "./utils.js";
 
 // Create maze
-const maze = new Maze(20, 15, { type: "field", wallDensity: 0.3 });
+const maze = new Maze(20, 15, {
+  type: "field",
+  wallDensity: 0.3,
+  showManhattanDistance: false,
+});
 
 // Set display function
 maze.setDisplayFunction(htmlDisplayFunction);

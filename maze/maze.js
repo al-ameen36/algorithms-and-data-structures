@@ -3,6 +3,7 @@ class Tile {
     this.x = x;
     this.y = y;
     this.type = type; // 'wall', 'path', 'start', 'goal'
+    // this.manhattanDistance = manhattanDistance;
   }
 
   isWalkable() {
@@ -21,6 +22,7 @@ export class Maze {
     this.options = {
       type: "field", // 'field' or 'line'
       wallDensity: 0.3, // For field mazes (0-1)
+      showManhattanDistance: false,
       ...options,
     };
 
@@ -152,6 +154,7 @@ export class Maze {
     this.goal = { x, y };
     this._getTile(x, y).type = "goal";
     this._updateDisplay();
+    this.addManhathanDistance();
     return true;
   }
 
@@ -191,9 +194,7 @@ export class Maze {
     startTile.type = "start";
     goalTile.type = "goal";
 
-    console.log(startTile);
-    console.log(goalTile);
-
+    this.addManhathanDistance();
     this._updateDisplay();
     return true;
   }
@@ -258,19 +259,32 @@ export class Maze {
     return this._getTile(x, y);
   }
 
+  addManhathanDistance() {
+    const goalTile = this.getTile(this.goal.x, this.goal.y);
+    this.tiles.forEach(
+      (tile) =>
+        (tile.manhattanDistance = this._manhattanDistance(tile, goalTile))
+    );
+  }
+
   // Display management
   setDisplayFunction(displayFn) {
     this.displayFn = displayFn;
     this._updateDisplay();
   }
 
+  // Utility methods
   _updateDisplay() {
     if (this.displayFn) {
-      this.displayFn(this.tiles, this.width, this.height);
+      this.displayFn(
+        this.tiles,
+        this.width,
+        this.height,
+        this.options.showManhattanDistance
+      );
     }
   }
 
-  // Utility methods
   _getTile(x, y, tiles = this.tiles) {
     return tiles.find((t) => t.x === x && t.y === y);
   }
@@ -348,8 +362,10 @@ export class Maze {
   highlightTile(x, y, color, colorType = "background") {
     const tileElement = document.getElementById(`${x}-${y}`);
     if (tileElement) {
-      if (colorType === "background") tileElement.style.backgroundColor = color;
-      else if (colorType === "border")
+      if (colorType === "background") {
+        tileElement.style.backgroundColor = color;
+        tileElement.style.color = "#fff";
+      } else if (colorType === "border")
         tileElement.style.border = "4px solid " + color;
     }
   }
@@ -359,6 +375,7 @@ export class Maze {
     document.querySelectorAll(".path").forEach((item) => {
       item.style.border = "";
       item.style.backgroundColor = "";
+      item.style.color = "";
     });
 
     const start = document.querySelector(".start");

@@ -59,6 +59,7 @@ export class DepthFirstSearch {
     }
 
     let currentTile = this.frontier.pop();
+
     if (!this.isAlreadyExplored(currentTile)) {
       // Skip is already explored
       this.explored.push(currentTile); // Keep track of explored tiles
