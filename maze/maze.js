@@ -211,14 +211,19 @@ export class Maze {
   }
 
   // Search algorithm interface
-  getNeighbors(x, y) {
+  getNeighbors(x, y, randomize = false) {
     const neighbors = [];
-    const directions = [
-      { dx: 0, dy: 1 },
-      { dx: 1, dy: 0 },
-      { dx: 0, dy: -1 },
-      { dx: -1, dy: 0 },
+    let directions = [
+      { dx: 0, dy: 1 }, // down
+      { dx: 1, dy: 0 }, // right
+      { dx: 0, dy: -1 }, // up
+      { dx: -1, dy: 0 }, // left
     ];
+
+    // Randomize directions if requested
+    if (randomize) {
+      directions = this._shuffleArray([...directions]);
+    }
 
     for (const dir of directions) {
       const nx = x + dir.dx;
@@ -233,6 +238,16 @@ export class Maze {
     }
 
     return neighbors;
+  }
+
+  // Helper method to shuffle array (Fisher-Yates algorithm)
+  _shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   isWalkable(x, y) {

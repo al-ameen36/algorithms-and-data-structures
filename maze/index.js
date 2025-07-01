@@ -11,6 +11,7 @@ maze.randomizeStartGoal();
 
 // Algorithms
 const dfs = new DepthFirstSearch(maze);
+const dfsRandom = new DepthFirstSearch(maze, true);
 
 // Optional: Add keyboard shortcuts
 document.addEventListener("keydown", (event) => {
@@ -19,6 +20,7 @@ document.addEventListener("keydown", (event) => {
       case "r":
         event.preventDefault();
         dfs.stop();
+        dfsRandom.stop();
         maze.regenerate();
         maze.randomizeStartGoal(); // Temp
         break;
@@ -27,14 +29,11 @@ document.addEventListener("keydown", (event) => {
         dfs.stop();
         dfs.find();
         break;
-      // case "2":
-      //   event.preventDefault();
-      //   dfsrBtn?.click();
-      //   break;
-      // case "3":
-      //   event.preventDefault();
-      //   bfsBtn?.click();
-      //   break;
+      case "2":
+        event.preventDefault();
+        dfsRandom.stop();
+        dfsRandom.find();
+        break;
     }
   }
 });

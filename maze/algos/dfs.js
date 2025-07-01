@@ -1,9 +1,11 @@
 export class DepthFirstSearch {
   #maze;
+  #randomize;
   #isSearching;
 
-  constructor(maze) {
+  constructor(maze, randomize = false) {
     this.#maze = maze;
+    this.#randomize = randomize;
 
     this.reset();
   }
@@ -70,7 +72,11 @@ export class DepthFirstSearch {
 
       // Continue if current tile is not the goal
       else if (currentTile.type === "path") {
-        let neighbors = this.#maze.getNeighbors(currentTile.x, currentTile.y);
+        let neighbors = this.#maze.getNeighbors(
+          currentTile.x,
+          currentTile.y,
+          this.#randomize
+        );
         neighbors = neighbors.filter(
           (item) => !this.isAlreadyExplored(item) && item.isWalkable()
         );
