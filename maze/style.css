@@ -27,7 +27,7 @@ button {
 }
 
 #shortcuts-bar {
-  background-color: var(--primary-color);
+  background-color: #1b497a;
   color: #fff;
   display: flex;
   overflow-x: auto;
@@ -74,7 +74,7 @@ button {
   border: 4px solid var(--start-color);
 }
 
-#action-buttons {
+#action {
   display: grid;
   gap: 1rem;
   width: 100%;
@@ -82,9 +82,9 @@ button {
 }
 
 #result {
-  background-color: var(--primary-color);
+  background-color: #fff;
   border-radius: 3px;
-  color: #fff;
+  /* color: #fff; */
   display: grid;
   gap: 0.5rem;
   justify-items: center;
@@ -96,18 +96,38 @@ button {
   text-align: center;
 }
 
-#regenerate-button {
-  border: 1px solid silver;
-  border-radius: 10px;
+#action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+#action-buttons button {
+  border: 1px solid grey;
+  border-radius: 6px;
+  box-shadow: 0px 0 5px rgba(0, 0, 0, 0.3);
+  display: grid;
   font-size: 0.9rem;
-  display: inline-block;
-  padding: 1rem;
+  gap: 0.3rem;
+  padding: 0.5rem;
+  place-items: center;
+}
+
+#regenerate-button {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+#action-buttons button > span:last-child {
+  font-size: 0.75rem;
 }
 
 /* Enhanced sidebar styles */
 #sidebar {
   position: fixed;
-  right: 0;
+  right: 0px;
   top: 0;
   width: 280px;
   height: 100vh;
@@ -116,10 +136,17 @@ button {
   padding: 20px;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  transition: transform 0.3s ease;
 }
 
-.container {
-  margin-right: 300px; /* Make room for sidebar */
+#side-toggle {
+  padding: 0.5rem 1rem;
+  position: fixed;
+  right: 280px;
+  top: 0;
+  transform: rotateZ(-90deg);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease;
 }
 
 .option-group {
@@ -186,29 +213,6 @@ input[type="range"] {
 
 #update-button:hover {
   background: #0056b3;
-}
-
-.shortcuts {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #dee2e6;
-}
-
-.shortcuts h3 {
-  margin-bottom: 15px;
-  color: #495057;
-  font-size: 16px;
-}
-
-.shortcut-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.shortcut-list div {
-  color: #6c757d;
 }
 
 kbd {

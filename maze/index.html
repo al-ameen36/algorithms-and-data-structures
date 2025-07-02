@@ -13,7 +13,7 @@
         <span>CTRL + 1</span>
       </div>
       <div>
-        <span>DFS (Random Direction)</span>
+        <span>DFS (Random)</span>
         <span>CTRL + 2</span>
       </div>
       <div>
@@ -22,16 +22,27 @@
       </div>
     </div>
     <div class="container">
-      <div id="action-buttons">
+      <!-- <div id="action-buttons"> -->
+      <div id="action">
         <div id="result">
           <p>Goal found at x: -, y: -</p>
           <p>Steps taken: -</p>
         </div>
-        <button id="regenerate-button">Regenerate</button>
+        <div id="action-buttons">
+          <button id="regenerate-button">
+            <span>Regenerate</span>
+            <span>CTRL + R</span>
+          </button>
+          <button id="reset-button">
+            <span>Reset</span>
+            <span>CTRL + S</span>
+          </button>
+        </div>
       </div>
       <div id="maze"></div>
     </div>
 
+    <button id="side-toggle">Settings</button>
     <aside id="sidebar">
       <h2>Options</h2>
       <div class="option-group">
@@ -66,32 +77,17 @@
         </div>
 
         <div class="option-item">
-          <label for="num-paths">Number of Paths</label>
-          <input
-            type="range"
-            id="num-paths"
-            min="1"
-            max="8"
-            step="1"
-            value="4"
-          />
-          <span id="num-paths-value">4</span>
+          <div>
+            <input type="checkbox" id="show-distance" />
+            <label for="show-distance">Show Manhattan distance</label>
+          </div>
         </div>
 
         <button id="update-button">Update Maze</button>
       </div>
-
-      <div class="shortcuts">
-        <h3>Keyboard Shortcuts</h3>
-        <div class="shortcut-list">
-          <div><kbd>Ctrl</kbd> + <kbd>R</kbd> - Regenerate</div>
-          <div><kbd>Ctrl</kbd> + <kbd>1</kbd> - Depth First</div>
-          <div><kbd>Ctrl</kbd> + <kbd>2</kbd> - Depth First (Random)</div>
-          <div><kbd>Ctrl</kbd> + <kbd>3</kbd> - Breadth First</div>
-        </div>
-      </div>
     </aside>
 
     <script type="module" src="index.js"></script>
+    <script type="module" src="events.js"></script>
   </body>
 </html>

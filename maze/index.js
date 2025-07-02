@@ -4,7 +4,7 @@ import { Maze } from "./maze.js";
 import { clearResult, htmlDisplayFunction } from "./utils.js";
 
 // Create maze
-const maze = new Maze(20, 15, {
+export const maze = new Maze(20, 15, {
   type: "field",
   wallDensity: 0.3,
   showManhattanDistance: false,
@@ -19,11 +19,17 @@ const dfs = new DepthFirstSearch(maze);
 const dfsRandom = new DepthFirstSearch(maze, true);
 const bfs = new BreadthFirstSearch(maze);
 
-function stopAllAlgos() {
+export function stopAllAlgos() {
   dfs.stop();
   dfsRandom.stop();
   bfs.stop();
   clearResult();
+}
+
+export function stopAndRegenerate() {
+  stopAllAlgos();
+  maze.regenerate();
+  maze.randomizeStartGoal(); // Temp
 }
 
 // Optional: Add keyboard shortcuts

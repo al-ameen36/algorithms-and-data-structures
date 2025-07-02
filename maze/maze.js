@@ -140,7 +140,12 @@ export class Maze {
   setStart(x, y) {
     if (!this._isValidPosition(x, y)) return false;
 
-    if (this.start) this._getTile(this.start.x, this.start.y).type = "path";
+    // Clear existing start if it exists and is within bounds
+    if (this.start && this._isInBounds(this.start.x, this.start.y)) {
+      const existingTile = this._getTile(this.start.x, this.start.y);
+      if (existingTile) existingTile.type = "path";
+    }
+
     this.start = { x, y };
     this._getTile(x, y).type = "start";
     this._updateDisplay();
@@ -150,7 +155,12 @@ export class Maze {
   setGoal(x, y) {
     if (!this._isValidPosition(x, y)) return false;
 
-    if (this.goal) this._getTile(this.goal.x, this.goal.y).type = "path";
+    // Clear existing goal if it exists and is within bounds
+    if (this.goal && this._isInBounds(this.goal.x, this.goal.y)) {
+      const existingTile = this._getTile(this.goal.x, this.goal.y);
+      if (existingTile) existingTile.type = "path";
+    }
+
     this.goal = { x, y };
     this._getTile(x, y).type = "goal";
     this._updateDisplay();
@@ -168,9 +178,15 @@ export class Maze {
       return false;
     }
 
-    // Clear existing start/goal
-    if (this.start) this._getTile(this.start.x, this.start.y).type = "path";
-    if (this.goal) this._getTile(this.goal.x, this.goal.y).type = "path";
+    // Clear existing start/goal - check if they exist in current grid
+    if (this.start && this._isInBounds(this.start.x, this.start.y)) {
+      const startTile = this._getTile(this.start.x, this.start.y);
+      if (startTile) startTile.type = "path";
+    }
+    if (this.goal && this._isInBounds(this.goal.x, this.goal.y)) {
+      const goalTile = this._getTile(this.goal.x, this.goal.y);
+      if (goalTile) goalTile.type = "path";
+    }
 
     // Pick random positions, ensuring they're far apart
     let attempts = 0;
@@ -200,14 +216,18 @@ export class Maze {
   }
 
   clearStartGoal() {
-    if (this.start) {
-      this._getTile(this.start.x, this.start.y).type = "path";
-      this.start = null;
+    // Clear existing start/goal - check if they exist in current grid
+    if (this.start && this._isInBounds(this.start.x, this.start.y)) {
+      const startTile = this._getTile(this.start.x, this.start.y);
+      if (startTile) startTile.type = "path";
     }
-    if (this.goal) {
-      this._getTile(this.goal.x, this.goal.y).type = "path";
-      this.goal = null;
+    if (this.goal && this._isInBounds(this.goal.x, this.goal.y)) {
+      const goalTile = this._getTile(this.goal.x, this.goal.y);
+      if (goalTile) goalTile.type = "path";
     }
+
+    this.start = null;
+    this.goal = null;
     this._updateDisplay();
   }
 
@@ -260,11 +280,19 @@ export class Maze {
   }
 
   addManhathanDistance() {
+    if (!this.goal) return; // Add safety check
+
     const goalTile = this.getTile(this.goal.x, this.goal.y);
+    if (!goalTile) return; // Add safety check
+
     this.tiles.forEach(
       (tile) =>
         (tile.manhattanDistance = this._manhattanDistance(tile, goalTile))
     );
+  }
+
+  updateOptions(options) {
+    this.options = { ...this.options, ...options };
   }
 
   // Display management
@@ -338,13 +366,16 @@ export class Maze {
     this._updateDisplay();
   }
 
-  setMazeType(type) {
-    this.options.type = type;
-    this.regenerate();
-  }
-
   getDimensions() {
     return { width: this.width, height: this.height };
+  }
+
+  setDimensions(width, height) {
+    this.width = width;
+    this.height = height;
+    // Clear start and goal when dimensions change to avoid out-of-bounds references
+    this.start = null;
+    this.goal = null;
   }
 
   getStart() {
