@@ -88,7 +88,7 @@ export class DepthFirstSearch {
         this.frontier.push(...neighbors);
       }
       // Move to next step
-      this.timeOuts.push(setTimeout(() => this.step(), 100));
+      this.timeOuts.push(setTimeout(() => this.step(), this.#maze.getSpeed()));
     } else {
       this.step();
     }

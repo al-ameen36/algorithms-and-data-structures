@@ -23,6 +23,7 @@ export class Maze {
       type: "field", // 'field' or 'line'
       wallDensity: 0.3, // For field mazes (0-1)
       showManhattanDistance: false,
+      searchSpeed: 100,
       ...options,
     };
 
@@ -163,8 +164,7 @@ export class Maze {
 
     this.goal = { x, y };
     this._getTile(x, y).type = "goal";
-    this._updateDisplay();
-    this.addManhathanDistance();
+    this.addManhattanDistance();
     return true;
   }
 
@@ -210,7 +210,7 @@ export class Maze {
     startTile.type = "start";
     goalTile.type = "goal";
 
-    this.addManhathanDistance();
+    this.addManhattanDistance();
     this._updateDisplay();
     return true;
   }
@@ -279,7 +279,7 @@ export class Maze {
     return this._getTile(x, y);
   }
 
-  addManhathanDistance() {
+  addManhattanDistance() {
     if (!this.goal) return; // Add safety check
 
     const goalTile = this.getTile(this.goal.x, this.goal.y);
@@ -289,6 +289,10 @@ export class Maze {
       (tile) =>
         (tile.manhattanDistance = this._manhattanDistance(tile, goalTile))
     );
+  }
+
+  getSpeed() {
+    return this.options.searchSpeed;
   }
 
   updateOptions(options) {
